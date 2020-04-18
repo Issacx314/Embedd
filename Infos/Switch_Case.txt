@@ -1,0 +1,102 @@
+/*Information for switch*/
+unsigned char gbCaseVar = 0;
+
+unsigned char gbCaseOut = 0;
+
+void vfnCase0(void);
+void vfnCase1(void);
+void vfnCase2(void);
+void vfnCase3(void);
+void vfnCaseDefault(void);
+
+
+//Case options services functions
+void (* vfnapCase[])(void) =
+{
+	vfnCase0,
+	vfnCase1,
+	vfnCase2,
+	vfnCase3,
+	vfnCaseDefault
+};
+//In case the case options are not in order and we skip values...
+unsigned char baCaseValues[] = {0,1,2,3};
+
+void main(void) 
+{
+	for (;;)
+	{
+		//Regular switch-case implementation
+		switch ( gbCaseVar )
+		{
+			case 0:
+			{
+				vfnCase0();
+				break;
+			}
+			case 1:
+			{
+				vfnCase1();
+				break;
+			}
+			case 2:
+			{
+				vfnCase2();
+				break;
+			}
+			case 3:
+			{
+				vfnCase3();
+				break;
+			}
+			default:
+			{
+				vfnCaseDefault();
+				break;
+			}
+		}
+		asm ("\tnop");
+		asm ("\tnop");
+		//Jump table implementation....
+		vfnapCase[gbCaseVar]();
+		asm ("\tnop");
+		asm ("\tnop");
+		asm ("\tnop");
+		//In case the case options are not in order and we skip values...
+		{
+			unsigned char bIdx = 0;
+			do
+			{
+				if ( bIdx == gbCaseVar )
+				{
+					vfnapCase[bIdx]();
+					break;
+				}
+			}while ( ++bIdx < sizeof (baCaseValues));
+		}
+		gbCaseVar++;
+		gbCaseVar &= 3;
+	}
+}
+
+
+void vfnCase0(void)
+{
+	gbCaseOut = '0';
+}
+void vfnCase1(void)
+{
+	gbCaseOut = '1';
+}
+void vfnCase2(void)
+{
+	gbCaseOut = '2';
+}
+void vfnCase3(void)
+{
+	gbCaseOut = '3';
+}
+void vfnCaseDefault(void)
+{
+	gbCaseOut = 'D';
+}
